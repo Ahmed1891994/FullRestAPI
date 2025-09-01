@@ -9,10 +9,7 @@
 1. Clone the repository
 2. Run the application:
 ```bash docker-compose up --build``` 
-
-3. Access the API at: http://localhost:8080
-
-4. Access Swagger UI at: http://localhost:8080/docs
+3. Access Swagger UI at: http://localhost:8080/docs
 
 ## API Endpoints
 1. Authors: /authors
@@ -26,7 +23,7 @@ text
 
 ## 6. Important Notes
 
-1. **Database Connection**: In your Spring Boot application, the database URL now uses `db` (the service name from Docker Compose) instead of `localhost`.
+1. **Database Connection**: In Spring Boot application, the database URL now uses `db` (the service name from Docker Compose) instead of `localhost`.
 2. **Dependency Order**: The `depends_on` ensures PostgreSQL starts before your Spring Boot app.
 3. **Network**: Both services are on the same Docker network, allowing them to communicate.
 4. **Data Persistence**: The `volumes` section ensures PostgreSQL data persists between container restarts.
