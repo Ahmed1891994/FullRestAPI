@@ -2,10 +2,8 @@
 
 ## Prerequisites
 - Docker
-- Docker Compose
 
 ## How to run
-
 1. Clone the repository
 2. Run the application:
 ```bash docker-compose up --build``` 
