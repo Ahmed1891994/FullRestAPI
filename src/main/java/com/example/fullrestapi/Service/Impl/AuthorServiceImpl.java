@@ -4,6 +4,7 @@ import com.example.fullrestapi.Repository.AuthorRepository;
 import com.example.fullrestapi.Service.AuthorService;
 import com.example.fullrestapi.domain.dto.AuthorDto;
 import com.example.fullrestapi.domain.entities.AuthorEntity;
+import com.example.fullrestapi.mappers.Impl.AuthorMapperImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,11 @@ import java.util.stream.StreamSupport;
 public class AuthorServiceImpl implements AuthorService {
 
     private final AuthorRepository authorRepository;
+    private final AuthorMapperImpl authorMapper;
 
-    public AuthorServiceImpl(AuthorRepository authorRepository) {
+    public AuthorServiceImpl(AuthorRepository authorRepository, AuthorMapperImpl authorMapper) {
         this.authorRepository = authorRepository;
+        this.authorMapper = authorMapper;
     }
 
     @Override
@@ -49,13 +52,15 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public AuthorEntity partialUpdate(Long id, AuthorEntity authorEntity) {
-        authorEntity.setId(id);
-        return authorRepository.findById(id).map(ExistingAuthor -> {
-            Optional.ofNullable(authorEntity.getName()).ifPresent(ExistingAuthor::setName);
-            Optional.ofNullable(authorEntity.getAge()).ifPresent(ExistingAuthor::setAge);
-            return this.save(ExistingAuthor);
-        }).orElseThrow(() -> new RuntimeException("Author not found"));
+        return authorRepository.findById(id)
+                .map(existing -> {
+                    AuthorDto dto = authorMapper.mapTo(authorEntity);
+                    authorMapper.mapPartial(dto, existing);
+                    return authorRepository.save(existing);
+                })
+                .orElseThrow(() -> new RuntimeException("Author not found"));
     }
+
 
     @Override
     public void delete(Long id) {

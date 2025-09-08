@@ -1,16 +1,20 @@
 package com.example.fullrestapi.domain.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookDto {
-    String isbn;
-    String title;
-    AuthorDto author;
+    private String isbn;
+    private String title;
+    private Boolean published;
+    private Integer pages;
+    private BigDecimal price;
+    private AuthorDto author;       // Nested DTO
+    private List<String> tags;
+    private List<Double> ratings;
 }

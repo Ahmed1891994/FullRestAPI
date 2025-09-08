@@ -2,56 +2,36 @@ package com.example.fullrestapi.Utils;
 
 import com.example.fullrestapi.domain.entities.AuthorEntity;
 import com.example.fullrestapi.domain.entities.BookEntity;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.List;
 
 public class TestDataUtils {
 
-    static public AuthorEntity createAuthorA()
-    {
+    public static AuthorEntity createAuthorFull() {
         return AuthorEntity.builder()
                 .name("Arther")
                 .age(80)
+                .active(true)
+                .rating(4.5)
+                .totalBooks(10)
+                .genres(List.of("Fantasy", "Sci-Fi"))
+                .scores(List.of(95, 90, 85))
+                .wealth(new BigDecimal("1000000.50"))
+                .followers(new BigInteger("50000"))
                 .build();
     }
 
-    static public AuthorEntity createAuthorB()
-    {
-        return AuthorEntity.builder()
-                .name("Arther2")
-                .age(70)
-                .build();
-    }
-
-    static public AuthorEntity createAuthorC()
-    {
-        return AuthorEntity.builder()
-                .name("Arther3")
-                .age(60)
-                .build();
-    }
-    static public BookEntity createBookA(AuthorEntity author)
-    {
+    public static BookEntity createBookFull(AuthorEntity author) {
         return BookEntity.builder()
                 .isbn("965-982-0-110")
-                .title("java learn")
+                .title("Java Learn")
+                .published(true)
+                .pages(350)
+                .price(new BigDecimal("49.99"))
                 .author(author)
-                .build();
-    }
-
-    static public BookEntity createBookB(AuthorEntity author)
-    {
-        return BookEntity.builder()
-                .isbn("965-982-0-111")
-                .title("java learn2")
-                .author(author)
-                .build();
-    }
-
-    static public BookEntity createBookC(AuthorEntity author)
-    {
-        return BookEntity.builder()
-                .isbn("965-982-0-112")
-                .title("java learn3")
-                .author(author)
+                .tags(List.of("Java", "Programming"))
+                .ratings(List.of(5.0, 4.5, 5.0))
                 .build();
     }
 }

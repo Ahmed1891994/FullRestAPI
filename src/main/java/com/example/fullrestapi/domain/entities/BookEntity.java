@@ -1,10 +1,9 @@
 package com.example.fullrestapi.domain.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
@@ -13,10 +12,22 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "books")
 public class BookEntity {
+
     @Id
-    String isbn;
-    String title;
+    private String isbn;
+
+    private String title;
+    private Boolean published;            // boolean
+    private Integer pages;                // integer
+    private BigDecimal price;             // big decimal price
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "author_id")
-    AuthorEntity author;
+    private AuthorEntity author;          // nested author
+
+    @ElementCollection
+    private List<String> tags;            // list of strings
+
+    @ElementCollection
+    private List<Double> ratings;         // list of doubles
 }
