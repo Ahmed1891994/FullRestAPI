@@ -175,4 +175,105 @@ public class BookControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.delete("/books/" + book.getIsbn()))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
+
+    @Test
+    public void testCreateBookMergesAuthorFields() throws Exception {
+        // 1. Save an author with minimal info
+        AuthorEntity baseAuthor = AuthorEntity.builder()
+                .name("Merge Author")
+                .active(true)
+                .build();
+        AuthorEntity savedAuthor = bookService.save(
+                "111-MERGE-TEST",
+                BookEntity.builder()
+                        .isbn("111-MERGE-TEST")
+                        .title("Temp")
+                        .author(baseAuthor)
+                        .price(BigDecimal.ONE)
+                        .pages(10)
+                        .published(true)
+                        .build()
+        ).getAuthor();
+
+        // 2. Now create a new book referencing the same author ID but with extra info
+        AuthorEntity newAuthorData = AuthorEntity.builder()
+                .id(savedAuthor.getId())       // same ID
+                .age(45)
+                .rating(4.7)
+                .totalBooks(12)
+                .build();
+
+        BookEntity newBook = BookEntity.builder()
+                .isbn("222-MERGE-TEST")
+                .title("Book With Merge")
+                .author(newAuthorData)
+                .price(BigDecimal.TEN)
+                .pages(200)
+                .published(true)
+                .build();
+
+        String json = objectMapper.writeValueAsString(newBook);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/books/" + newBook.getIsbn())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.author.name").value("Merge Author")) // kept from old
+                .andExpect(MockMvcResultMatchers.jsonPath("$.author.age").value(45))              // new field added
+                .andExpect(MockMvcResultMatchers.jsonPath("$.author.rating").value(4.7));         // new field added
+    }
+
+    @Test
+    public void testPartialUpdateMergesAuthorFields() throws Exception {
+        BookEntity book = bookService.save(
+                TestDataUtils.createBookFull(TestDataUtils.createAuthorFull()).getIsbn(),
+                TestDataUtils.createBookFull(TestDataUtils.createAuthorFull())
+        );
+
+        // Author already has a name and active
+        AuthorEntity updatedAuthor = AuthorEntity.builder()
+                .id(book.getAuthor().getId())
+                .totalBooks(50)   // new field only
+                .build();
+
+        book.setAuthor(updatedAuthor);
+        String json = objectMapper.writeValueAsString(book);
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/books/" + book.getIsbn())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.author.name").value("Arther")) // unchanged
+                .andExpect(MockMvcResultMatchers.jsonPath("$.author.totalBooks").value(50)); // merged
+    }
+
+    @Test
+    public void testCreateBookWithNewAuthorWithoutId() throws Exception {
+        AuthorEntity newAuthor = AuthorEntity.builder()
+                .name("Fresh Author")
+                .age(30)
+                .active(true)
+                .genres(List.of("Horror", "Drama"))
+                .build();
+
+        BookEntity book = BookEntity.builder()
+                .isbn("333-NEW-AUTHOR")
+                .title("Brand New Book")
+                .author(newAuthor)   // no ID here
+                .price(BigDecimal.valueOf(25))
+                .pages(300)
+                .published(false)
+                .tags(List.of("Thriller"))
+                .ratings(List.of(4.0, 4.5))
+                .build();
+
+        String json = objectMapper.writeValueAsString(book);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/books/" + book.getIsbn())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.author.name").value("Fresh Author"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.author.genres[0]").value("Horror"));
+    }
 }

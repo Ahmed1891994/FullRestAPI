@@ -15,7 +15,7 @@ import java.util.List;
 public class AuthorEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "author_id_seq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  // ✅ simpler & works best with PostgreSQL
     private Long id;
 
     private String name;
@@ -25,9 +25,13 @@ public class AuthorEntity {
     private Integer totalBooks;           // total books
 
     @ElementCollection
+    @CollectionTable(name = "author_genres", joinColumns = @JoinColumn(name = "author_id"))
+    @Column(name = "genre")
     private List<String> genres;          // list of strings
 
     @ElementCollection
+    @CollectionTable(name = "author_scores", joinColumns = @JoinColumn(name = "author_id"))
+    @Column(name = "score")
     private List<Integer> scores;         // list of integers
 
     private BigDecimal wealth;            // big decimal for large numbers
