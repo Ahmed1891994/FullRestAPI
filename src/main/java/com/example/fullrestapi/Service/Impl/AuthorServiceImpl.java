@@ -27,6 +27,15 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public AuthorEntity save(AuthorEntity author) {
+        if (author.getId() == null) { // creation
+            if (authorRepository.existsByName(author.getName())) {
+                throw new RuntimeException("Author with this name already exists");
+            }
+        } else { // update
+            if (authorRepository.existsByNameAndIdNot(author.getName(), author.getId())) {
+                throw new RuntimeException("Author with this name already exists");
+            }
+        }
         return authorRepository.save(author);
     }
 
@@ -65,5 +74,10 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public void delete(Long id) {
         authorRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean existsByNameAndIdNot(String name, Long id) {
+        return authorRepository.existsByNameAndIdNot(name, id);
     }
 }
